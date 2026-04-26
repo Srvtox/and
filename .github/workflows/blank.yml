@@ -1,4 +1,4 @@
-name: Build Android SDK Mirror
+name: Build Android SDK (Latest)
 
 on:
   workflow_dispatch:
@@ -11,34 +11,33 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Install requirements
+    - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y unzip openjdk-17-jdk
+        sudo apt-get install -y unzip zip openjdk-17-jdk wget
 
-    - name: Download Latest CommandLineTools
+    - name: Download latest Android cmdline-tools
       run: |
-          mkdir -p $HOME/android-sdk
-          cd $HOME/android-sdk
+        mkdir -p $HOME/android-sdk/cmdline-tools
+        cd $HOME/android-sdk
 
-          echo "Downloading latest cmdline-tools..."
-          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmd.zip
+        echo "Downloading latest Android command line tools..."
+        wget https://dl.google.com/android/repository/commandlinetools-linux-latest.zip -O tools.zip
 
-          mkdir -p cmd/cmdline-tools/latest
-          unzip cmd.zip -d cmd/cmdline-tools/latest
+        unzip tools.zip
+        mv cmdline-tools latest
+        mkdir -p cmdline-tools
+        mv latest cmdline-tools/
 
-          rm cmd.zip
- 
-
-    - name: Install Android SDK packages
+    - name: Install latest SDK packages
+      env:
+        ANDROID_HOME: ${{ env.HOME }}/android-sdk
+        PATH: ${{ env.HOME }}/android-sdk/cmdline-tools/latest/bin:${{ env.PATH }}
       run: |
-        export ANDROID_HOME=$HOME/android-sdk
-        export PATH=$ANDROID_HOME/cmd/cmdline-tools/bin:$PATH
+        echo "Check sdkmanager location:"
+        which sdkmanager
 
-        echo "Accepting licenses..."
         yes | sdkmanager --licenses
-
-        echo "Installing latest packages..."
         sdkmanager --update
 
         sdkmanager \
@@ -49,14 +48,14 @@ jobs:
     - name: Compress SDK
       run: |
         cd $HOME
-        tar -czf android-sdk.tar.gz android-sdk
-        ls -lh android-sdk.tar.gz
+        tar -czf android-sdk-linux-latest.tar.gz android-sdk
+        ls -lh android-sdk-linux-latest.tar.gz
 
-    - name: Upload to Release
+    - name: Upload Release
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: android-sdk-latest
-        name: Latest Android SDK
-        files: $HOME/android-sdk.tar.gz
+        tag_name: android-sdk-linux-latest
+        name: Android SDK Linux Latest
+        files: $HOME/android-sdk-linux-latest.tar.gz
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
