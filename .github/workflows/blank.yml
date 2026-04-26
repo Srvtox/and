@@ -18,15 +18,17 @@ jobs:
 
     - name: Download Latest CommandLineTools
       run: |
-        mkdir -p $HOME/android-sdk
-        cd $HOME/android-sdk
+          mkdir -p $HOME/android-sdk
+          cd $HOME/android-sdk
 
-        echo "Downloading latest cmdline-tools..."
-        wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmd.zip
+          echo "Downloading latest cmdline-tools..."
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmd.zip
 
-        unzip cmd.zip -d cmd
-        mkdir -p cmd/cmdline-tools
-        mv cmd/* cmd/cmdline-tools/
+          mkdir -p cmd/cmdline-tools/latest
+          unzip cmd.zip -d cmd/cmdline-tools/latest
+
+          rm cmd.zip
+ 
 
     - name: Install Android SDK packages
       run: |
