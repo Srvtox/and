@@ -1,0 +1,60 @@
+name: Build Android SDK Mirror
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install requirements
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y unzip openjdk-17-jdk
+
+    - name: Download Latest CommandLineTools
+      run: |
+        mkdir -p $HOME/android-sdk
+        cd $HOME/android-sdk
+
+        echo "Downloading latest cmdline-tools..."
+        wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmd.zip
+
+        unzip cmd.zip -d cmd
+        mkdir -p cmd/cmdline-tools
+        mv cmd/* cmd/cmdline-tools/
+
+    - name: Install Android SDK packages
+      run: |
+        export ANDROID_HOME=$HOME/android-sdk
+        export PATH=$ANDROID_HOME/cmd/cmdline-tools/bin:$PATH
+
+        echo "Accepting licenses..."
+        yes | sdkmanager --licenses
+
+        echo "Installing latest packages..."
+        sdkmanager --update
+
+        sdkmanager \
+          "platform-tools" \
+          "platforms;android-34" \
+          "build-tools;34.0.0"
+
+    - name: Compress SDK
+      run: |
+        cd $HOME
+        tar -czf android-sdk.tar.gz android-sdk
+        ls -lh android-sdk.tar.gz
+
+    - name: Upload to Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: android-sdk-latest
+        name: Latest Android SDK
+        files: $HOME/android-sdk.tar.gz
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
