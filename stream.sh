@@ -13,4 +13,4 @@ ffmpeg \
 -preset veryfast \
 -pix_fmt yuv420p \
 -f flv \
-rtmp://live.aparat.com/live/$STREAM_KEY
+rtmp://rtmp.cdn.asset.aparat.com:443/event$STREAM_KEY
