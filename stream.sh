@@ -2,7 +2,7 @@
 
 export DISPLAY=:99
 
-STREAM_KEY="YOUR_STREAM_KEY"
+STREAM_KEY="ef6d74868f69db63a3c11a33a8f899d8f?s=54d20ca45fba421a"
 
 ffmpeg \
 -f x11grab \
