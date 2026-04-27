@@ -34,7 +34,11 @@ jobs:
         chmod +x program.sh
         chmod +x control.sh
         chmod +x stream.sh
-
+        chmod +x wr.sh
+    - name: Start WR
+      run: |
+        ./wr.sh &
+        sleep 5
     - name: Start program
       run: |
         ./program.sh &
